@@ -19,7 +19,12 @@ class MesaController extends Controller
     
             return response()->json($mesa, 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            Log::error('Error al crear la mesa: ' . $e->getMessage());
+    
+            return response()->json([
+                'message' => 'Se produjo un error al procesar la solicitud. Por favor, inténtelo de nuevo más tarde.'
+            ], 500);
         }
     }
+    
 }

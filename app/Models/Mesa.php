@@ -11,12 +11,11 @@ class Mesa extends Model
 {
     protected $fillable = ['nombre']; // Campos que se pueden modificar
     protected $table = 'mesas'; // Nombre de la tabla en la base de datos
-    public function tiempo()
+
+    public function tiempos()
     {
-        return $this->hasOne(TiempoMesa::class);
         return $this->hasMany(TiempoMesa::class);
     }
-
 
     use HasFactory;
 }

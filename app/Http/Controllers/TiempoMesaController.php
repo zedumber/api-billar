@@ -9,33 +9,74 @@ class TiempoMesaController extends Controller
 {
     public function index()
     {
-        $tiempos = TiempoMesa::all();
-        return response()->json($tiempos);
+        try {
+            $tiempos = TiempoMesa::all()->groupBy('billar');
+            return response()->json($tiempos);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
+    
     public function guardartiempo(Request $request)
     {
         try {
-            $request->validate([           
+            // Validación de la solicitud
+            $validatedData = $request->validate([
+                'billar' => 'required|string',
                 'mesa_id' => 'required|exists:mesas,id',
-                'tiempo_inicio' => 'required|date_format:H:i:s',
-                'tiempo_fin' => 'required|date_format:H:i:s',
+                'duracion' => 'required|string|regex:/^[0-9]{2}:[0-9]{2}:[0-9]{2}$/',
+                'pagado' => 'required|boolean',
             ]);
     
-            // Convertir los tiempos al formato de MySQL
-            $tiempo_inicio = date('Y-m-d H:i:s', strtotime('today ' . $request->tiempo_inicio));
-            $tiempo_fin = date('Y-m-d H:i:s', strtotime('today ' . $request->tiempo_fin));
+            // Convertir la duración a segundos
+            $duracion = explode(':', $validatedData['duracion']);
+            $segundos = ($duracion[0] * 3600) + ($duracion[1] * 60) + $duracion[2];
     
-            $tiempoMesa = TiempoMesa::create([          
-                'mesa_id' => $request->mesa_id,
-                'tiempo_inicio' => $tiempo_inicio,
-                'tiempo_fin' => $tiempo_fin,
+            // Crear el registro en la base de datos
+            $tiempoMesa = TiempoMesa::create([
+                'billar' => $validatedData['billar'],
+                'mesa_id' => $validatedData['mesa_id'],
+                'duracion' => $segundos, // Almacenar la duración en segundos
+                'pagado' => $validatedData['pagado'],
             ]);
     
-            return response()->json($tiempoMesa, 201);
+            // Responder con éxito
+            return response()->json([
+                'success' => true,
+                'message' => 'Tiempo de mesa guardado exitosamente',
+                'data' => $tiempoMesa
+            ], 201);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Capturar errores de validación y devolver una respuesta detallada
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos de validación incorrectos',
+                'errors' => $e->errors()
+            ], 422);
+    
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            // Manejar cualquier otro error
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al guardar el tiempo de mesa',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+    
+    
+    public function marcarPagado($id)
+{
+    try {
+        $tiempoMesa = TiempoMesa::findOrFail($id);
+        $tiempoMesa->update(['pagado' => true]);
+
+        return response()->json(['message' => 'Tiempo marcado como pagado']);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
+    }
+}
     
  // Otros métodos para show, update, destroy, etc.
 }

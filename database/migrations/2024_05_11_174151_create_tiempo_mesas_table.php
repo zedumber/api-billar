@@ -16,13 +16,14 @@ class CreateTiempoMesasTable extends Migration
         Schema::create('tiempo_mesas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('mesa_id');
-            $table->time('tiempo_inicio');
-            $table->time('tiempo_fin')->nullable();
+            $table->string('billar');
+            $table->string('duracion'); // Duración en segundos
+            $table->boolean('pagado')->default(false);
             $table->foreign('mesa_id')->references('id')->on('mesas');
             $table->timestamps();
         });
-        
     }
+    
 
     /**
      * Reverse the migrations.

@@ -9,7 +9,7 @@ class TiempoMesa extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['mesa_id', 'tiempo_inicio', 'tiempo_fin'];
+    protected $fillable = ['mesa_id', 'billar','pagado', 'duracion'];
     protected $table = 'tiempo_mesas'; // Nombre de la tabla en la base de datos
 
 
