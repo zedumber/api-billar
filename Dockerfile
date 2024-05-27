@@ -37,7 +37,13 @@ RUN php artisan config:clear
 
 # Instalamos e iniciamos Octane con el servidor Swoole
 RUN php artisan octane:install --server="swoole"
-CMD php artisan octane:start --server="swoole" --host="0.0.0.0"
+#CMD php artisan octane:start --server="swoole" --host="0.0.0.0"
+
+# Copiamos el archivo de configuración de supervisord
+COPY supervisord.conf /etc/supervisord.conf
 
 # Exponemos el puerto 8000
 EXPOSE 8000
+
+# Configuramos el CMD para iniciar supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -23,7 +23,6 @@ class CreateTiempoMesasTable extends Migration
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
